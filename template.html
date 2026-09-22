@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenCode · Usage</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1017; --panel:#121b26; --panel2:#172332; --text:#e5edf7; --muted:#91a3ba; --border:#28374a; --accent:#70dacb; --accent-bg:#12372f; --cache:#668bdf; --input:#70dacb; --output:#b3d77c; --reasoning:#c59bee; --write:#e9ba75; --danger:#fa9a9a; --shadow:0 24px 80px #0008; }
+    :root[data-theme="light"] { color-scheme:light; --bg:#f1f5f9; --panel:#fff; --panel2:#eaf0f6; --text:#18283c; --muted:#52657c; --border:#d2dce8; --accent:#077c6e; --accent-bg:#d9f0ea; --cache:#668bdf; --input:#229e91; --output:#719b37; --reasoning:#9361c0; --write:#c38a30; --danger:#b62640; --shadow:0 24px 80px #192d4926; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; }
+    button,input,select { border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:7px; }
+    button { cursor:pointer; padding:8px 13px; }
+    button:hover { border-color:var(--accent); }
+    button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+    input,select { padding:9px 11px; max-width:100%; }
+    input[type="checkbox"] { accent-color:var(--accent); }
+    a { color:var(--accent); }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:30px; letter-spacing:-1px; margin-bottom:5px; }
+    h2 { font-size:17px; margin-bottom:14px; }
+    h3 { font-size:14px; margin-bottom:10px; }
+    code { font-size:12px; overflow-wrap:anywhere; }
+    .shell { max-width:1510px; margin:0 auto; padding:30px 28px 45px; }
+    .header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom:24px; }
+    .eyebrow { text-transform:uppercase; letter-spacing:2px; font-size:11px; font-weight:700; color:var(--accent); margin-bottom:5px; }
+    .period { display:flex; align-items:center; flex-wrap:wrap; gap:10px 20px; margin:15px 0 10px; padding:14px 18px; background:var(--accent-bg); border-left:3px solid var(--accent); border-radius:8px; }
+    .period-label { display:block; color:var(--muted); font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+    .period-date { display:block; color:var(--accent); font-size:clamp(19px,2.2vw,25px); font-weight:650; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .period-arrow { color:var(--muted); font-size:23px; }
+    .period-meta { flex-basis:100%; color:var(--muted); font-size:12px; }
+    .muted { color:var(--muted); }
+    .small { font-size:12px; }
+    .actions,.inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .filters { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:20px; }
+    .filter-row { display:grid; grid-template-columns:minmax(220px,2fr) minmax(180px,1fr) minmax(160px,1fr) auto; gap:10px; }
+    .switches { display:flex; justify-content:space-between; gap:15px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:var(--muted); }
+    .switches label { display:inline-flex; align-items:center; gap:6px; }
+    .cards { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
+    .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:17px; min-width:0; }
+    .card-label { color:var(--muted); font-size:12px; margin-bottom:8px; }
+    .card-value { font-size:27px; line-height:1.15; font-weight:650; letter-spacing:-.7px; font-variant-numeric:tabular-nums; }
+    .card-foot { font-size:11px; color:var(--muted); margin-top:8px; }
+    .card:first-child .card-value { color:var(--accent); }
+    .status { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin:12px 2px 22px; }
+    .tabs { display:flex; gap:6px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+    .tab { border:0; border-radius:7px 7px 0 0; padding:11px 20px; background:transparent; color:var(--muted); }
+    .tab[aria-selected="true"] { color:var(--accent); background:var(--accent-bg); box-shadow:inset 0 -2px var(--accent); }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:18px; min-width:0; }
+    .panel-heading { display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; margin-bottom:15px; }
+    .panel-heading h2,.panel-heading h3 { margin:0; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .chart { width:100%; height:auto; display:block; min-height:130px; }
+    .chart text { fill:var(--muted); font:11px system-ui,sans-serif; }
+    .chart .gridline { stroke:var(--border); stroke-width:1; }
+    .legend { display:flex; gap:17px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:8px; }
+    .dot { width:8px; height:8px; border-radius:2px; display:inline-block; margin-right:6px; }
+    .bar-item { margin-bottom:13px; }
+    .bar-label { display:flex; justify-content:space-between; gap:15px; font-size:12px; margin-bottom:5px; }
+    .bar-label span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .bar-track { background:var(--panel2); height:6px; border-radius:3px; overflow:hidden; }
+    .bar-fill { background:var(--accent); height:100%; border-radius:3px; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th { text-align:left; color:var(--muted); font-weight:500; padding:10px 11px; white-space:nowrap; border-bottom:1px solid var(--border); }
+    td { padding:12px 11px; border-bottom:1px solid var(--border); vertical-align:top; }
+    tbody tr:last-child td { border-bottom:0; }
+    th.numeric,td.numeric { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+    tr[data-session-key]:hover,tr[data-direct-session]:hover { background:var(--panel2); cursor:pointer; }
+    .title-cell { min-width:240px; max-width:450px; }
+    .session-title { color:var(--text); font-weight:550; text-align:left; background:none; border:0; padding:0; font-size:12px; }
+    .session-title:hover { color:var(--accent); }
+    .title-meta { font-size:10px; color:var(--muted); margin-top:4px; }
+    .sort-button { background:none; border:0; border-radius:0; padding:0; color:inherit; font-size:12px; }
+    .badge { display:inline-block; background:var(--panel2); color:var(--muted); border:1px solid var(--border); font-size:10px; padding:1px 6px; border-radius:4px; white-space:nowrap; }
+    .error { color:var(--danger); }
+    .source-path { max-width:620px; min-width:230px; overflow-wrap:anywhere; font:11px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .empty { color:var(--muted); text-align:center; padding:35px 15px; }
+    .notes { font-size:12px; color:var(--muted); margin-top:22px; }
+    .notes summary { cursor:pointer; color:var(--text); }
+    .notes dl { display:grid; grid-template-columns:110px 1fr; gap:10px 18px; margin:18px 0; }
+    .notes dt { color:var(--text); text-transform:capitalize; }
+    .notes dd { margin:0; }
+    .warning { padding:12px 15px; border:1px solid var(--write); border-radius:8px; margin-bottom:18px; font-size:12px; }
+    dialog { color:var(--text); background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:0; width:min(1230px,95vw); max-height:92vh; box-shadow:var(--shadow); }
+    dialog::backdrop { background:#050910bd; backdrop-filter:blur(3px); }
+    .dialog-header { position:sticky; top:0; background:var(--bg); z-index:2; display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:23px 25px 16px; border-bottom:1px solid var(--border); }
+    .dialog-header h2 { font-size:21px; margin-bottom:6px; }
+    .dialog-body { padding:22px 25px; }
+    .dialog-body .cards { grid-template-columns:repeat(4,1fr); }
+    .dialog-body .card-value { font-size:23px; }
+    .detail-meta { display:flex; flex-wrap:wrap; gap:8px 22px; margin-bottom:20px; font-size:12px; color:var(--muted); }
+    [hidden] { display:none !important; }
+    @media(max-width:1100px) { .cards { grid-template-columns:repeat(3,1fr); } .filter-row { grid-template-columns:2fr 1fr; } }
+    @media(max-width:700px) { .shell { padding:20px 14px; } .header { flex-direction:column; } .cards { grid-template-columns:repeat(2,1fr); } .card { padding:14px; } .card-value { font-size:24px; } .filter-row,.grid2 { grid-template-columns:1fr; } .dialog-body .cards { grid-template-columns:repeat(2,1fr); } .panel { padding:15px; } .dialog-header,.dialog-body { padding:17px; } .notes dl { grid-template-columns:1fr; gap:5px; } .notes dd { margin-bottom:10px; } }
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="header">
+    <div>
+      <div class="eyebrow">Local analytics</div>
+      <h1>OpenCode usage</h1>
+      <div id="period" class="period" aria-label="Report date range"></div>
+      <div id="generated" class="muted small"></div>
+    </div>
+    <div class="actions">
+      <button id="download-json">Download JSON</button>
+      <button id="theme-toggle" aria-label="Switch color theme">Light mode</button>
+    </div>
+  </header>
+  <div id="warnings"></div>
+  <section class="filters" aria-label="Report filters">
+    <div class="filter-row">
+      <input id="search" type="search" placeholder="Search titles, IDs, directories…" aria-label="Search sessions">
+      <select id="project-filter" aria-label="Filter by project"><option value="">All projects</option></select>
+      <select id="category-filter" aria-label="Filter by session category">
+        <option value="">All session categories</option>
+        <option value="conversations">Conversations</option>
+        <option value="reviews">Automated memory reviews</option>
+      </select>
+      <button id="reset">Reset filters</button>
+    </div>
+    <div class="switches">
+      <div class="inline">
+        <label><input id="rollup" type="checkbox" checked> Include subagents under parents</label>
+        <label><input id="group-reviews" type="checkbox" checked> Group automated reviews</label>
+      </div>
+      <span>Metrics reflect the selected sessions · regenerate to refresh dates</span>
+    </div>
+  </section>
+  <section id="summary-cards" class="cards" aria-label="Usage summary"></section>
+  <div id="status" class="status"></div>
+  <nav class="tabs" aria-label="Dashboard views">
+    <button class="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" data-tab="sessions" aria-selected="false">Sessions</button>
+    <button class="tab" data-tab="tools" aria-selected="false">Tools &amp; sources</button>
+  </nav>
+  <section id="view-overview">
+    <div class="panel">
+      <div class="panel-heading">
+        <h2>Daily token usage</h2>
+        <label class="small muted"><input id="chart-cache" type="checkbox" checked> Include cached tokens in chart</label>
+      </div>
+      <div id="daily-chart"></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h2>By project</h2><div id="project-breakdown"></div></div>
+      <div class="panel"><h2>By model</h2><div id="model-breakdown"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading"><h2>Largest sessions</h2><button id="all-sessions" class="small">View all sessions</button></div>
+      <div id="top-sessions" class="table-wrap"></div>
+    </div>
+  </section>
+  <section id="view-sessions" hidden>
+    <div class="panel">
+      <div class="panel-heading"><h2 id="session-heading">Sessions</h2><button id="download-csv" class="small">Export displayed rows · CSV</button></div>
+      <p class="muted small">Click a session for its details. Column headings change the sort order.</p>
+      <div id="session-table" class="table-wrap"></div>
+    </div>
+  </section>
+  <section id="view-tools" hidden>
+    <div class="panel">
+      <h2>Tool activity</h2>
+      <p id="tool-summary" class="muted small"></p>
+      <p class="muted small">Text volume measures arguments + results in characters, not billed tokens. Tool-turn tokens include the model’s entire context.</p>
+      <div id="tool-table" class="table-wrap"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-heading">
+        <h2>Files, URLs &amp; skills</h2>
+        <div class="inline">
+          <select id="source-sort" aria-label="Sort sources">
+            <option value="output_chars">Most returned text</option>
+            <option value="calls">Most calls</option>
+            <option value="repeat_candidates">Most reread candidates</option>
+          </select>
+          <select id="source-limit" aria-label="Number of sources"><option value="50">Top 50</option><option value="200">Top 200</option><option value="all">All sources</option></select>
+        </div>
+      </div>
+      <p class="muted small">Reread candidates returned identical content in the same session/context segment, with no recorded prior-result pruning. A freshness check may still be useful.</p>
+      <div id="source-table" class="table-wrap"></div>
+    </div>
+  </section>
+  <details class="notes">
+    <summary>Accounting &amp; data notes</summary>
+    <dl id="accounting"></dl>
+    <div id="database-path"></div>
+  </details>
+</main>
+<dialog id="session-dialog" aria-labelledby="dialog-title">
+  <div class="dialog-header">
+    <div><h2 id="dialog-title"></h2><div id="dialog-subtitle" class="muted small"></div></div>
+    <button id="close-dialog" aria-label="Close session details">Close ✕</button>
+  </div>
+  <div id="dialog-body" class="dialog-body"></div>
+</dialog>
+<script id="report-data" type="application/json">__REPORT_DATA__</script>
+<script>
+"use strict";
+const report = JSON.parse(document.getElementById("report-data").textContent);
+const byId = new Map(report.sessions.map(session => [session.id, session]));
+const activeSessions = report.sessions.filter(session => session.in_window);
+const $ = id => document.getElementById(id);
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[character]));
+const integer = value => new Intl.NumberFormat("en-US", {maximumFractionDigits:0}).format(value || 0);
+const compact = value => new Intl.NumberFormat("en-US", {notation:"compact", maximumFractionDigits:2}).format(value || 0);
+const percent = (value, total) => total ? `${(100 * value / total).toFixed(1)}%` : "0.0%";
+const isoLabel = value => value ? value.replace("T", " ").slice(0, 16) : "—";
+const dayLabel = value => value ? `${value.slice(5, 7)}/${value.slice(8, 10)}` : "—";
+const durationLabel = value => value >= 60000 ? `${(value / 60000).toFixed(1)}m` : `${(value / 1000).toFixed(1)}s`;
+const tokenKinds = [
+  ["input", "Uncached input", "input"],
+  ["cache_read", "Cache reads", "cache"],
+  ["cache_write", "Cache writes", "write"],
+  ["output", "Output", "output"],
+  ["reasoning", "Reasoning", "reasoning"]
+];
+let sortKey = "total", sortDirection = -1;
+let displayedRows = [], currentSummary, selectedSessions = [], activeUnit;
+let dialogSourceLimit = 50;
+let sessionRows = new Map();
+
+function sumMetrics(target, values) {
+  for (const [key, value] of Object.entries(values || {})) target[key] = (target[key] || 0) + value;
+}
+
+function aggregate(sessions) {
+  const result = {metrics:{}, daily:{}, models:{}, tools:{}, sources:[], ids:sessions.map(session => session.id), first_activity:null, last_activity:null};
+  const sourceTotals = new Map();
+  for (const session of sessions) {
+    sumMetrics(result.metrics, session.metrics);
+    for (const group of ["daily", "models", "tools"]) {
+      for (const [key, values] of Object.entries(session[group])) sumMetrics(result[group][key] ||= {}, values);
+    }
+    for (const source of session.sources) {
+      const key = JSON.stringify([source.tool, source.source]);
+      if (!sourceTotals.has(key)) sourceTotals.set(key, {tool:source.tool, source:source.source, metrics:{}});
+      sumMetrics(sourceTotals.get(key).metrics, source.metrics);
+    }
+    if (session.first_activity != null && (result.first_activity == null || session.first_activity < result.first_activity)) {
+      result.first_activity = session.first_activity;
+      result.first_activity_iso = session.first_activity_iso;
+    }
+    if (session.last_activity != null && (result.last_activity == null || session.last_activity > result.last_activity)) {
+      result.last_activity = session.last_activity;
+      result.last_activity_iso = session.last_activity_iso;
+    }
+  }
+  result.sources = [...sourceTotals.values()];
+  return result;
+}
+
+function makeUnit(sessions, metadata) {
+  return {...aggregate(sessions), key:metadata.id, title:metadata.title, project:metadata.project,
+    project_name:metadata.project_name, directory:metadata.directory, kind:metadata.automatic_type,
+    created_iso:metadata.created_iso, root_id:metadata.root_id, isGroup:false};
+}
+
+const directUnits = activeSessions.map(session => makeUnit([session], session));
+const rootMembers = new Map();
+for (const session of activeSessions) {
+  if (!rootMembers.has(session.root_id)) rootMembers.set(session.root_id, []);
+  rootMembers.get(session.root_id).push(session);
+}
+const rootUnits = [...rootMembers].map(([rootId, members]) => makeUnit(members, byId.get(rootId)));
+
+function card(label, value, foot, title = "") {
+  return `<div class="card"><div class="card-label">${escapeHTML(label)}</div><div class="card-value" title="${escapeHTML(title)}">${escapeHTML(value)}</div><div class="card-foot">${escapeHTML(foot)}</div></div>`;
+}
+
+function costLabel(metrics) {
+  if (!metrics.cost_reported_responses) return {value:"Unavailable", foot:"Provider cost not reported"};
+  return {value:new Intl.NumberFormat("en-US", {style:"currency", currency:"USD"}).format(metrics.reported_cost || 0),
+    foot:metrics.cost_reported_responses < metrics.responses ? "Reported cost · partial coverage" : "Provider-reported cost"};
+}
+
+function renderCards(metrics) {
+  const cost = costLabel(metrics);
+  const generated = (metrics.output || 0) + (metrics.reasoning || 0);
+  $("summary-cards").innerHTML = [
+    card("Total tokens", compact(metrics.total), "Includes cached input", integer(metrics.total)),
+    card("Uncached input", compact(metrics.input), `${compact(metrics.cache_write)} cache-write tokens`, integer(metrics.input)),
+    card("Output + reasoning", compact(generated), `${compact(metrics.output)} output · ${compact(metrics.reasoning)} reasoning`, integer(generated)),
+    card("Cached input share", percent(metrics.cache_read, metrics.total), `${compact(metrics.cache_read)} cache-read tokens`, integer(metrics.cache_read)),
+    card("Tool calls", integer(metrics.tool_calls), `${integer(metrics.responses)} model responses`),
+    card("Reported cost", cost.value, cost.foot)
+  ].join("");
+}
+
+function renderDaily(daily) {
+  const dates = Object.keys(daily).sort();
+  if (!dates.length) return '<div class="empty">No activity in this selection.</div>';
+  const days = [];
+  const cursor = new Date(dates[0] + "T12:00:00Z");
+  const last = new Date(dates[dates.length - 1] + "T12:00:00Z");
+  while (cursor <= last) {
+    days.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  const kinds = tokenKinds.filter(([key]) => $("chart-cache").checked || !key.startsWith("cache_"));
+  const sums = days.map(day => kinds.reduce((sum, [key]) => sum + (daily[day]?.[key] || 0), 0));
+  const max = Math.max(...sums, 1);
+  const width = 1050, height = 225, left = 57, right = 12, top = 14, bottom = 33;
+  const plotHeight = height - top - bottom;
+  const slot = (width - left - right) / days.length;
+  const barWidth = Math.max(0.5, slot * 0.70);
+  let svg = `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Daily token usage">`;
+  for (let tick = 0; tick <= 3; tick++) {
+    const value = max * tick / 3;
+    const y = top + plotHeight - value / max * plotHeight;
+    svg += `<line class="gridline" x1="${left}" x2="${width - right}" y1="${y}" y2="${y}"/><text x="${left - 9}" y="${y + 4}" text-anchor="end">${compact(value)}</text>`;
+  }
+  days.forEach((day, index) => {
+    let y = top + plotHeight;
+    const x = left + index * slot + (slot - barWidth) / 2;
+    for (const [key, label, color] of kinds) {
+      const value = daily[day]?.[key] || 0;
+      const barHeight = value / max * plotHeight;
+      y -= barHeight;
+      if (value) svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="var(--${color})"><title>${day} · ${label}: ${integer(value)} tokens</title></rect>`;
+    }
+    if (index % Math.max(1, Math.ceil(days.length / 10)) === 0 || index === days.length - 1) {
+      svg += `<text x="${x + barWidth / 2}" y="${height - 9}" text-anchor="middle">${dayLabel(day)}</text>`;
+    }
+  });
+  return svg + `</svg><div class="legend">${kinds.map(([, label, color]) => `<span><i class="dot" style="background:var(--${color})"></i>${label}</span>`).join("")}</div>`;
+}
+
+function renderBars(entries, limit = 10) {
+  const sorted = entries.filter(entry => entry.value > 0).sort((a, b) => b.value - a.value);
+  if (!sorted.length) return '<div class="empty">No recorded token usage.</div>';
+  const total = sorted.reduce((sum, entry) => sum + entry.value, 0);
+  const visible = sorted.slice(0, limit);
+  if (sorted.length > limit) visible.push({label:`Other (${sorted.length - limit})`, value:sorted.slice(limit).reduce((sum, entry) => sum + entry.value, 0)});
+  const max = Math.max(...visible.map(entry => entry.value));
+  return visible.map(entry => `<div class="bar-item"><div class="bar-label"><span title="${escapeHTML(entry.title || entry.label)}">${escapeHTML(entry.label)}</span><span class="muted" title="${integer(entry.value)} tokens">${compact(entry.value)} · ${percent(entry.value, total)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${100 * entry.value / max}%"></div></div></div>`).join("");
+}
+
+function sortSessions(rows) {
+  return [...rows].sort((a, b) => {
+    if (["title", "project"].includes(sortKey)) return sortDirection * a[sortKey].localeCompare(b[sortKey]);
+    const value = row => sortKey === "last_activity" ? row.last_activity || 0 : sortKey === "cache_share" ? (row.metrics.cache_read || 0) / (row.metrics.total || 1) : row.metrics[sortKey] || 0;
+    return sortDirection * (value(a) - value(b)) || a.title.localeCompare(b.title);
+  });
+}
+
+function sessionTable(rows, sortable = false) {
+  if (!rows.length) return '<div class="empty">No sessions match these filters.</div>';
+  const headers = [["title", "Session"], ["project", "Project"], ["total", "Tokens"], ["input", "Uncached input"], ["cache_share", "Cache share"], ["responses", "Responses"], ["tool_calls", "Tools"], ["last_activity", "Last activity"]];
+  return `<table><thead><tr>${headers.map(([key, label], index) => `<th class="${index > 1 ? "numeric" : ""}">${sortable ? `<button class="sort-button" data-sort="${key}">${label}${key === sortKey ? (sortDirection === -1 ? " ↓" : " ↑") : ""}</button>` : label}</th>`).join("")}</tr></thead><tbody>${rows.map(row => {
+    const label = row.isGroup ? `${row.ids.length} sessions · open to inspect` : row.ids.length > 1 ? `${row.ids.length - Number(row.ids.includes(row.key))} subagents included` : row.key;
+    return `<tr data-session-key="${escapeHTML(row.key)}"><td class="title-cell"><button class="session-title" data-session-key="${escapeHTML(row.key)}">${escapeHTML(row.title)}</button><div class="title-meta">${escapeHTML(label)}</div></td><td title="${escapeHTML(row.project)}">${escapeHTML(row.project_name)}</td><td class="numeric" title="${integer(row.metrics.total)}">${compact(row.metrics.total)}</td><td class="numeric" title="${integer(row.metrics.input)}">${compact(row.metrics.input)}</td><td class="numeric">${percent(row.metrics.cache_read, row.metrics.total)}</td><td class="numeric">${integer(row.metrics.responses)}</td><td class="numeric">${integer(row.metrics.tool_calls)}</td><td class="numeric muted">${escapeHTML(isoLabel(row.last_activity_iso))}</td></tr>`;
+  }).join("")}</tbody></table>`;
+}
+
+function toolTable(tools) {
+  const rows = Object.entries(tools).sort((a, b) => (b[1].payload_chars || 0) - (a[1].payload_chars || 0));
+  if (!rows.length) return '<div class="empty">No tool calls recorded.</div>';
+  const total = rows.reduce((sum, [, metrics]) => sum + (metrics.payload_chars || 0), 0);
+  return `<table><thead><tr><th>Tool</th><th class="numeric">Calls</th><th class="numeric">Argument chars</th><th class="numeric">Result chars</th><th class="numeric">Text share</th><th class="numeric">Errors</th><th class="numeric">Reread candidates</th><th class="numeric">Avg. duration</th></tr></thead><tbody>${rows.map(([tool, metrics]) => `<tr><td><code>${escapeHTML(tool)}</code></td><td class="numeric">${integer(metrics.calls)}</td><td class="numeric" title="${integer(metrics.input_chars)}">${compact(metrics.input_chars)}</td><td class="numeric" title="${integer(metrics.output_chars)}">${compact(metrics.output_chars)}</td><td class="numeric">${percent(metrics.payload_chars, total)}</td><td class="numeric ${metrics.errors ? "error" : "muted"}">${integer(metrics.errors)}</td><td class="numeric">${integer(metrics.repeat_candidates)}</td><td class="numeric muted">${metrics.timed_calls ? durationLabel(metrics.duration_ms / metrics.timed_calls) : "—"}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function sourceTable(sources, limit = 50, sort = "output_chars") {
+  const rows = [...sources].sort((a, b) => (b.metrics[sort] || 0) - (a.metrics[sort] || 0) || b.metrics.output_chars - a.metrics.output_chars);
+  if (!rows.length) return '<div class="empty">No file, URL or skill sources recorded.</div>';
+  return `<p class="muted small">Showing ${integer(Math.min(limit, rows.length))} of ${integer(rows.length)} sources.</p><table><thead><tr><th>Source</th><th>Tool</th><th class="numeric">Calls</th><th class="numeric">Returned chars</th><th class="numeric" title="Identical output repeated within the same session, including after compaction or pruning">Identical repeats</th><th class="numeric" title="Identical output while the earlier result appears retained">Reread candidates</th></tr></thead><tbody>${rows.slice(0, limit).map(source => `<tr><td class="source-path">${escapeHTML(source.source)}</td><td><span class="badge">${escapeHTML(source.tool)}</span></td><td class="numeric">${integer(source.metrics.calls)}</td><td class="numeric" title="${integer(source.metrics.output_chars)}">${compact(source.metrics.output_chars)}</td><td class="numeric">${integer(source.metrics.identical_repeats)}</td><td class="numeric">${integer(source.metrics.repeat_candidates)}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function renderSources() {
+  const limit = $("source-limit").value === "all" ? Infinity : Number($("source-limit").value);
+  $("source-table").innerHTML = sourceTable(currentSummary.sources, limit, $("source-sort").value);
+}
+
+function render() {
+  const query = $("search").value.trim().toLowerCase();
+  const project = $("project-filter").value;
+  const category = $("category-filter").value;
+  const base = $("rollup").checked ? rootUnits : directUnits;
+  const units = base.filter(unit => {
+    if (project && unit.project !== project) return false;
+    if (category === "conversations" && unit.kind) return false;
+    if (category === "reviews" && !unit.kind) return false;
+    return !query || [unit.key, unit.title, unit.directory, ...unit.ids.flatMap(id => [byId.get(id).title, id, byId.get(id).directory])].some(value => String(value || "").toLowerCase().includes(query));
+  });
+  const ids = new Set(units.flatMap(unit => unit.ids));
+  selectedSessions = activeSessions.filter(session => ids.has(session.id));
+  currentSummary = aggregate(selectedSessions);
+  let rows = units;
+  if ($("group-reviews").checked) {
+    rows = units.filter(unit => !unit.kind);
+    for (const kind of ["user", "project"]) {
+      const reviews = units.filter(unit => unit.kind === kind);
+      if (!reviews.length) continue;
+      const reviewIds = new Set(reviews.flatMap(unit => unit.ids));
+      const members = activeSessions.filter(session => reviewIds.has(session.id));
+      const projects = new Set(reviews.map(unit => unit.project));
+      rows.push({...aggregate(members), key:`review-group:${kind}`, title:`${kind === "user" ? "User" : "Project"} memory reviews (${reviews.length})`,
+        project:projects.size === 1 ? reviews[0].project : "Multiple projects", project_name:projects.size === 1 ? reviews[0].project_name : "Multiple projects", kind, isGroup:true});
+    }
+  }
+  displayedRows = sortSessions(rows);
+  sessionRows = new Map(rows.map(row => [row.key, row]));
+  renderCards(currentSummary.metrics);
+  const metrics = currentSummary.metrics;
+  $("status").innerHTML = `<span>${integer(selectedSessions.length)} individual sessions · ${integer(new Set(selectedSessions.map(session => session.root_id)).size)} session families · ${integer(metrics.compactions)} compaction markers</span><span>${compact(metrics.duplicate_tokens)} copied-fork tokens excluded${metrics.pending_responses ? ` · ${integer(metrics.pending_responses)} unfinished responses` : ""}</span>`;
+  $("daily-chart").innerHTML = renderDaily(currentSummary.daily);
+  const projectTotals = new Map();
+  for (const unit of units) {
+    if (!projectTotals.has(unit.project)) projectTotals.set(unit.project, {label:unit.project_name, title:unit.project, value:0});
+    projectTotals.get(unit.project).value += unit.metrics.total || 0;
+  }
+  $("project-breakdown").innerHTML = renderBars([...projectTotals.values()], 8);
+  $("model-breakdown").innerHTML = renderBars(Object.entries(currentSummary.models).map(([label, values]) => ({label, value:values.total || 0})), 8);
+  $("top-sessions").innerHTML = sessionTable([...rows].sort((a, b) => (b.metrics.total || 0) - (a.metrics.total || 0)).slice(0, 10));
+  $("session-heading").textContent = `Sessions · ${integer(displayedRows.length)} rows`;
+  $("session-table").innerHTML = sessionTable(displayedRows, true);
+  $("tool-summary").textContent = `${integer(metrics.tool_calls)} calls · ${compact((metrics.tool_input_chars || 0) + (metrics.tool_output_chars || 0))} text characters · ${integer(metrics.repeat_candidates)} reread candidates · ${percent(metrics.tool_turn_tokens, metrics.total)} of tokens on tool-calling turns`;
+  $("tool-table").innerHTML = toolTable(currentSummary.tools);
+  renderSources();
+}
+
+function showTab(tab) {
+  for (const button of document.querySelectorAll("[data-tab]")) button.setAttribute("aria-selected", String(button.dataset.tab === tab));
+  for (const name of ["overview", "sessions", "tools"]) $("view-" + name).hidden = name !== tab;
+}
+
+function renderDialog() {
+  const unit = activeUnit;
+  const metrics = unit.metrics;
+  $("dialog-title").textContent = unit.title;
+  $("dialog-subtitle").textContent = `${unit.isGroup ? "Automated review group" : unit.key} · ${unit.ids.length > 1 ? `${unit.ids.length} individual sessions included` : "Individual session"}`;
+  const tokenRows = tokenKinds.map(([key, label]) => `<tr><td>${label}</td><td class="numeric">${integer(metrics[key])}</td><td class="numeric muted">${percent(metrics[key], metrics.total)}</td></tr>`).join("");
+  const members = unit.ids.map(id => byId.get(id)).sort((a, b) => (b.metrics.total || 0) - (a.metrics.total || 0));
+  const memberRows = members.map(session => `<tr data-direct-session="${escapeHTML(session.id)}"><td class="title-cell"><button class="session-title" data-direct-session="${escapeHTML(session.id)}">${escapeHTML(session.title)}</button><div class="title-meta">${escapeHTML(session.id)}${session.parent_id ? " · subagent" : ""}</div></td><td class="numeric">${compact(session.metrics.total)}</td><td class="numeric">${percent(session.metrics.total, metrics.total)}</td><td class="numeric">${integer(session.metrics.tool_calls)}</td></tr>`).join("");
+  $("dialog-body").innerHTML = `
+    <div class="detail-meta"><span>Project: ${escapeHTML(unit.project || "Multiple projects")}</span><span>Activity: ${escapeHTML(isoLabel(unit.first_activity_iso))} → ${escapeHTML(isoLabel(unit.last_activity_iso))}</span>${unit.created_iso ? `<span>Session created: ${escapeHTML(isoLabel(unit.created_iso))}</span>` : ""}</div>
+    <div class="cards">${card("Tokens", compact(metrics.total), `${percent(metrics.cache_read, metrics.total)} cache reads`, integer(metrics.total))}${card("Uncached input", compact(metrics.input), `${compact(metrics.output)} output · ${compact(metrics.reasoning)} reasoning`, integer(metrics.input))}${card("Tool calls", integer(metrics.tool_calls), `${integer(metrics.tool_errors)} errors · ${integer(metrics.repeat_candidates)} reread candidates`)}${card("Model responses", integer(metrics.responses), `${percent(metrics.tool_turn_tokens, metrics.total)} of tokens on tool turns`)}</div>
+    <div class="panel"><h3>Daily usage</h3>${renderDaily(unit.daily)}</div>
+    <div class="grid2"><div class="panel"><h3>Token breakdown</h3><table><thead><tr><th>Type</th><th class="numeric">Tokens</th><th class="numeric">Share</th></tr></thead><tbody>${tokenRows}<tr><td><strong>Total</strong></td><td class="numeric"><strong>${integer(metrics.total)}</strong></td><td class="numeric">100%</td></tr></tbody></table><p class="small muted" style="margin-top:16px;margin-bottom:0">${integer(metrics.duplicate_tokens)} copied-fork tokens excluded · ${integer(metrics.pending_responses)} unfinished responses</p></div><div class="panel"><h3>Models</h3>${renderBars(Object.entries(unit.models).map(([label, values]) => ({label, value:values.total || 0})))}</div></div>
+    ${members.length > 1 ? `<div class="panel"><h3>${unit.isGroup ? "Individual review sessions" : "Parent & subagent contributions"}</h3><p class="small muted">Each row shows direct usage only. Click a row to inspect that session.</p><div class="table-wrap"><table><thead><tr><th>Session</th><th class="numeric">Direct tokens</th><th class="numeric">Share</th><th class="numeric">Tools</th></tr></thead><tbody>${memberRows}</tbody></table></div></div>` : ""}
+    <div class="panel"><h3>Tool usage</h3><p class="small muted">Arguments and results are character counts; they are not per-tool token charges.</p><div class="table-wrap">${toolTable(unit.tools)}</div></div>
+    <div class="panel"><div class="panel-heading"><h3>Files, URLs &amp; skills</h3>${unit.sources.length > dialogSourceLimit ? '<button id="dialog-all-sources" class="small">Show all sources</button>' : ""}</div><div class="table-wrap">${sourceTable(unit.sources, dialogSourceLimit)}</div></div>`;
+}
+
+function openSession(key, direct = false) {
+  const unit = direct ? makeUnit([byId.get(key)], byId.get(key)) : sessionRows.get(key);
+  if (!unit) return;
+  activeUnit = unit;
+  dialogSourceLimit = 50;
+  renderDialog();
+  if (!$("session-dialog").open) $("session-dialog").showModal();
+  $("session-dialog").scrollTop = 0;
+}
+
+function download(contents, filename, type) {
+  const url = URL.createObjectURL(new Blob([contents], {type}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function refreshProjects() {
+  const previous = $("project-filter").value;
+  const projects = new Map(($("rollup").checked ? rootUnits : directUnits).map(unit => [unit.project, unit.project_name]));
+  $("project-filter").innerHTML = '<option value="">All projects</option>' + [...projects].sort((a, b) => a[1].localeCompare(b[1])).map(([path, name]) => `<option value="${escapeHTML(path)}" title="${escapeHTML(path)}">${escapeHTML(name)} · ${escapeHTML(path)}</option>`).join("");
+  if (projects.has(previous)) $("project-filter").value = previous;
+}
+
+$("period").innerHTML = `<div><span class="period-label">Start</span><time class="period-date" datetime="${escapeHTML(report.meta.start)}">${escapeHTML(isoLabel(report.meta.start))}</time></div><span class="period-arrow" aria-hidden="true">→</span><div><span class="period-label">End</span><time class="period-date" datetime="${escapeHTML(report.meta.end_exclusive)}">${escapeHTML(isoLabel(report.meta.end_exclusive))}</time></div><div class="period-meta">${escapeHTML(report.meta.timezone)} · end exclusive</div>`;
+$("generated").textContent = `Snapshot generated ${isoLabel(report.meta.generated_at)} · rolling or calendar period fixed at generation`;
+$("warnings").innerHTML = report.meta.warnings.map(warning => `<div class="warning">${escapeHTML(warning)}</div>`).join("");
+$("accounting").innerHTML = Object.entries(report.meta.accounting).map(([key, value]) => `<dt>${escapeHTML(key)}</dt><dd>${escapeHTML(value)}</dd>`).join("");
+$("database-path").textContent = `Source: ${report.meta.database}`;
+refreshProjects();
+render();
+
+let searchTimer;
+$("search").addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(render, 120); });
+for (const id of ["project-filter", "category-filter", "group-reviews"]) $(id).addEventListener("change", render);
+$("rollup").addEventListener("change", () => { refreshProjects(); render(); });
+$("chart-cache").addEventListener("change", () => { $("daily-chart").innerHTML = renderDaily(currentSummary.daily); if ($("session-dialog").open) renderDialog(); });
+for (const id of ["source-sort", "source-limit"]) $(id).addEventListener("change", renderSources);
+$("reset").addEventListener("click", () => {
+  $("search").value = ""; $("category-filter").value = ""; $("rollup").checked = true; $("group-reviews").checked = true;
+  refreshProjects(); $("project-filter").value = ""; sortKey = "total"; sortDirection = -1; render();
+});
+document.addEventListener("click", event => {
+  const tab = event.target.closest("[data-tab]");
+  if (tab) return showTab(tab.dataset.tab);
+  const sort = event.target.closest("[data-sort]");
+  if (sort) {
+    sortDirection = sortKey === sort.dataset.sort ? -sortDirection : (["title", "project"].includes(sort.dataset.sort) ? 1 : -1);
+    sortKey = sort.dataset.sort; return render();
+  }
+  const direct = event.target.closest("[data-direct-session]");
+  if (direct) return openSession(direct.dataset.directSession, true);
+  const row = event.target.closest("[data-session-key]");
+  if (row) return openSession(row.dataset.sessionKey);
+  if (event.target.closest("#dialog-all-sources")) { dialogSourceLimit = Infinity; renderDialog(); }
+});
+$("all-sessions").addEventListener("click", () => showTab("sessions"));
+$("close-dialog").addEventListener("click", () => $("session-dialog").close());
+$("session-dialog").addEventListener("click", event => {
+  if (event.target !== $("session-dialog")) return;
+  const rect = $("session-dialog").getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) $("session-dialog").close();
+});
+$("download-json").addEventListener("click", () => download(JSON.stringify(report), "opencode-usage.json", "application/json"));
+$("download-csv").addEventListener("click", () => {
+  const rows = [["session_id_or_group", "title", "project", "included_sessions", "tokens", "uncached_input", "output", "reasoning", "cache_read", "cache_write", "model_responses", "tool_calls", "last_activity"]];
+  for (const unit of displayedRows) rows.push([unit.key, unit.title, unit.project, unit.ids.length, unit.metrics.total || 0, unit.metrics.input || 0, unit.metrics.output || 0, unit.metrics.reasoning || 0, unit.metrics.cache_read || 0, unit.metrics.cache_write || 0, unit.metrics.responses || 0, unit.metrics.tool_calls || 0, unit.last_activity_iso || ""]);
+  const csvCell = value => {
+    let text = String(value);
+    if (typeof value === "string" && /^[=+@\-]/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"', '""') + '"';
+  };
+  download(rows.map(row => row.map(csvCell).join(",")).join("\r\n"), "opencode-sessions.csv", "text/csv;charset=utf-8");
+});
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $("theme-toggle").textContent = theme === "light" ? "Dark mode" : "Light mode";
+}
+try { setTheme(localStorage.getItem("opencode-usage-theme") || "dark"); } catch { setTheme("dark"); }
+$("theme-toggle").addEventListener("click", () => {
+  const theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  setTheme(theme);
+  try { localStorage.setItem("opencode-usage-theme", theme); } catch {}
+});
+</script>
+</body>
+</html>

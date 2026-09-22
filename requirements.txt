@@ -1,0 +1,2 @@
+# No third-party Python dependencies.
+# Requires Python 3.9+ with sqlite3 and SQLite JSON support.
